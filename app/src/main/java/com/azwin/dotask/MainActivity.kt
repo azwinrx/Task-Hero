@@ -11,8 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.azwin.dotask.ui.component.navbarSwitch
-import com.azwin.dotask.ui.component.timerLogic
+import com.azwin.dotask.View.TimerView
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +22,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                timerLogic()
+                TimerView()
             }
         }
     }
@@ -37,7 +36,7 @@ fun doTask() {
             .fillMaxSize()
 
     ){
-        navbarSwitch()
+        TimerView()
     }
 
 
@@ -51,5 +50,5 @@ fun doTask() {
     )
 @Composable
 fun doTaskPreview() {
-    doTask()
+    TimerView()
 }

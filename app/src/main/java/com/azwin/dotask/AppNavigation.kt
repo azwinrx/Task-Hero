@@ -1,4 +1,4 @@
-package com.azwin.dotask.ui.component
+package com.azwin.dotask
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
