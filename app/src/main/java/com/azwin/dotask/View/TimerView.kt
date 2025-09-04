@@ -72,44 +72,64 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Image(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .alpha(0.8f),
-                        painter = rememberDrawablePainter(
-                            drawable = getDrawable(
-                                LocalContext.current,
-                                R.drawable.slimeghost
+                    Box{
+                        Image(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .alpha(0.7f),
+                            painter = rememberDrawablePainter(
+                                drawable = getDrawable(
+                                    LocalContext.current,
+                                    R.drawable.slimeghost
+                                )
+                            ),
+                            contentDescription = "Loading animation",
+                            contentScale = ContentScale.FillWidth,
+                        )
+                        if(statistic.isTimerRunning){
+                            Image(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .alpha(0.8f),
+                                painter = rememberDrawablePainter(
+                                    drawable = getDrawable(
+                                        LocalContext.current,
+                                        R.drawable.hiteffect
+                                    )
+                                ),
+                                contentDescription = "Loading animation",
+                                contentScale = ContentScale.FillWidth,
                             )
-                        ),
-                        contentDescription = "Loading animation",
-                        contentScale = ContentScale.FillWidth,
-                    )
+                        }
+                    }
                     Text(text = "HP: ${statistic.ticks}/${statistic.maxTicks}",color = Color.White)
                     StatBar(progress = hpBarProgress, color = Color.Red)
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(
-                        onClick = { timerViewModel.onAttackClicked() },
-                        enabled = !statistic.isTimerRunning
-                    ) {
-                        Text(text = "Attack")
-                    }
-                    Button(
-                        onClick = { timerViewModel.onPauseClicked() },
-                        enabled = statistic.isTimerRunning
-                    ) {
-                        Text(text = "Pause")
-                    }
+                        Button(
+                            onClick = { timerViewModel.onAttackClicked() },
+                            enabled = !statistic.isTimerRunning
+                        ) {
+                            Text(text = "Attack")
+                        }
+                        Button(
+                            onClick = { timerViewModel.onPauseClicked() },
+                            enabled = statistic.isTimerRunning
+                        ) {
+                            Text(text = "Pause")
+                        }
+
                     Button(
                         onClick = { timerViewModel.onCancelClicked() },
                         enabled = statistic.ticks < statistic.maxTicks,
                     ) {
-                        Text(text = "Cancel")
+                        Text(text = "Reset")
                     }
                 }
             }
