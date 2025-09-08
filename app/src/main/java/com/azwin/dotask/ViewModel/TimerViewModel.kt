@@ -20,7 +20,7 @@ class TimerViewModel : ViewModel() {
     fun onAttackClicked() {
         timerJob?.cancel()
         _statistic.value = _statistic.value.copy(
-            ticks = _statistic.value.maxTicks,
+            ticks = _statistic.value.ticks,
             isTimerRunning = true
         )
         startTimer()
