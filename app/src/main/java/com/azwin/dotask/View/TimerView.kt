@@ -1,9 +1,11 @@
 package com.azwin.dotask.View
 
+import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -66,8 +69,9 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(modifier =  Modifier
-                    .padding(top = (16.dp))
+                Column(
+                    modifier = Modifier
+                        .padding(top = (16.dp))
                 ) {
                     StatBar(
                         progress = expBarProgress,
@@ -120,7 +124,11 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                         }
                     }
                     Text(text = monster.name, color = Color.White)
-                    StatBar(progress = monsterHpProgress, color = Color.Red, text = "${monsterHp}/${monster.maxHp}")
+                    StatBar(
+                        progress = monsterHpProgress,
+                        color = Color.Red,
+                        text = "${monsterHp}/${monster.maxHp}"
+                    )
                 }
                 Row(
                     modifier = Modifier
@@ -132,23 +140,32 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                         modifier = Modifier
                     ) {
                         if (!timer.isTimerRunning) {
-                            Button(
+                            GameButton(
+                                backgroundRes = R.drawable.fightbutton,
                                 onClick = { timerViewModel.onAttackClicked() },
-                            ) {
-                                Text(text = "Attack")
-                            }
+                                modifier = Modifier,
+                                enabled = true
+                            )
                         } else {
-                            Button(
+                            GameButton(
+                                backgroundRes = R.drawable.pausebutton,
                                 onClick = { timerViewModel.onPauseClicked() },
-                            ) {
-                                Text(text = "Pause")
-                            }
+                                modifier = Modifier,
+                                enabled = true
+                            )
                         }
                     }
                     Box() {
                         if (player.stamina < player.MaxStamina) {
                             Button(
-                                onClick = {timerViewModel.onRestClicked()},
+                                onClick = { timerViewModel.onRestClicked() },
+                            ) {
+                                Text(text = "Rest")
+                            }
+                        } else {
+                            Button(
+                                onClick = { timerViewModel.resetStop() },
+                                enabled = false
                             ) {
                                 Text(text = "Rest")
                             }
@@ -189,6 +206,29 @@ fun StatBar(progress: Float, color: Color, text: String) {
         )
     }
 }
+
+@Composable
+fun GameButton(
+    @DrawableRes backgroundRes: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    Box(
+        modifier = modifier
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+
+        Image(
+            painter = painterResource(id = backgroundRes),
+            contentDescription = null,
+            modifier = Modifier.size(width = 100.dp, height = 50.dp),
+            contentScale = ContentScale.FillBounds
+        )
+    }
+}
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

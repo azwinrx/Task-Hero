@@ -1,5 +1,6 @@
 package com.azwin.dotask.Model
 
 data class TimerData (
-    val isTimerRunning: Boolean = false
+    val isTimerRunning: Boolean = false,
+    val notifMonsterDied : Boolean = false
 )

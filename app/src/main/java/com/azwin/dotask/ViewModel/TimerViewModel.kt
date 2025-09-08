@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
 class TimerViewModel : ViewModel() {
-
     //Monster Detail
     private val allMonsters = listOf(
         MonsterData(id = 1, name = "Slime Ghost", maxHp = 300, imageRes = R.drawable.slimeghost),
@@ -68,12 +67,13 @@ class TimerViewModel : ViewModel() {
         _monsterHp.value = _monster.value.maxHp
     }
 
+    //reset click
     fun onRestClicked() {
         timerJob?.cancel()
         _timer.value = _timer.value.copy(
             isTimerRunning = false
         )
-        timerJob = viewModelScope.launch{
+        timerJob = viewModelScope.launch {
             while (_player.value.stamina < _player.value.MaxStamina) {
                 delay(1.seconds)
                 _player.value = _player.value.copy(
@@ -83,6 +83,14 @@ class TimerViewModel : ViewModel() {
         }
     }
 
+    //fun reset stop
+    fun resetStop() {
+        timerJob?.cancel()
+        _timer.value = _timer.value.copy(
+            isTimerRunning = false
+        )
+
+    }
 
 
     //mulai timer
@@ -91,6 +99,9 @@ class TimerViewModel : ViewModel() {
             while (_monsterHp.value > 0) {
                 delay(1.seconds)
                 _monsterHp.value = _monsterHp.value.minus(_playerDamage.value)
+                _player.value = _player.value.copy(
+                    stamina = _player.value.stamina - 1
+                )
             }
             val currentExp = _player.value
             val newExp = currentExp.exp + 50
@@ -102,8 +113,10 @@ class TimerViewModel : ViewModel() {
             )
             _monsterHp.value = _monster.value.maxHp
             checkLevelUp()
+
         }
     }
+
 
     //chek level naik atau ga
     private fun checkLevelUp() {
