@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,16 +38,21 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 @Composable
 fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
 
-    val statistic by timerViewModel.statistic
+    val monster by timerViewModel.monster
+    val monsterHp by timerViewModel.monsterHp
+    val player by timerViewModel.player
+    val playerDamage by timerViewModel.playerDamage
+    val timer by timerViewModel.timer
 
-    val expBarProgress = statistic.exp.toFloat() / statistic.maxExp
-    val hpBarProgress = statistic.ticks.toFloat() / statistic.maxTicks
+    val expBarProgress = player.exp.toFloat() / player.maxExp
+    val monsterHpProgress = monsterHp.toFloat() / monster.maxHp
+    val playerStaminaProgress = player.stamina.toFloat() / player.MaxStamina
 
     //UI Layout
     Box(
         modifier = Modifier
             .fillMaxSize()
-    ){
+    ) {
         Image(
             painter = painterResource(id = R.drawable.backgroundarena),
             contentDescription = "Background",
@@ -60,9 +66,20 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                Text("Level: ${statistic.level} (${statistic.exp}/${statistic.maxExp})", color = Color.White)
-                StatBar(progress = expBarProgress, color = Color.Green)
+                Column(modifier =  Modifier
+                    .padding(top = (16.dp))
+                ) {
+                    StatBar(
+                        progress = expBarProgress,
+                        color = Color.Green,
+                        text = "Level : ${player.level} (${player.exp}/${player.maxExp})"
+                    )
+                    StatBar(
+                        progress = playerStaminaProgress,
+                        color = Color.Blue,
+                        text = "${player.stamina}/${player.MaxStamina}"
+                    )
+                }
 
                 Column(
                     modifier = Modifier
@@ -72,7 +89,7 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Box{
+                    Box {
                         Image(
                             modifier = Modifier
                                 .clip(CircleShape)
@@ -80,13 +97,13 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                             painter = rememberDrawablePainter(
                                 drawable = getDrawable(
                                     LocalContext.current,
-                                    R.drawable.slimeghost
+                                    monster.imageRes
                                 )
                             ),
                             contentDescription = "Loading animation",
                             contentScale = ContentScale.FillWidth,
                         )
-                        if(statistic.isTimerRunning){
+                        if (timer.isTimerRunning) {
                             Image(
                                 modifier = Modifier
                                     .clip(CircleShape)
@@ -102,32 +119,44 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                             )
                         }
                     }
-                    Text(text = "HP: ${statistic.ticks}/${statistic.maxTicks}",color = Color.White)
-                    StatBar(progress = hpBarProgress, color = Color.Red)
+                    Text(text = monster.name, color = Color.White)
+                    StatBar(progress = monsterHpProgress, color = Color.Red, text = "${monsterHp}/${monster.maxHp}")
                 }
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 24.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                        Button(
-                            onClick = { timerViewModel.onAttackClicked() },
-                            enabled = !statistic.isTimerRunning
-                        ) {
-                            Text(text = "Attack")
+                    Box(
+                        modifier = Modifier
+                    ) {
+                        if (!timer.isTimerRunning) {
+                            Button(
+                                onClick = { timerViewModel.onAttackClicked() },
+                            ) {
+                                Text(text = "Attack")
+                            }
+                        } else {
+                            Button(
+                                onClick = { timerViewModel.onPauseClicked() },
+                            ) {
+                                Text(text = "Pause")
+                            }
                         }
-                        Button(
-                            onClick = { timerViewModel.onPauseClicked() },
-                            enabled = statistic.isTimerRunning
-                        ) {
-                            Text(text = "Pause")
+                    }
+                    Box() {
+                        if (player.stamina < player.MaxStamina) {
+                            Button(
+                                onClick = {timerViewModel.onRestClicked()},
+                            ) {
+                                Text(text = "Rest")
+                            }
                         }
-
+                    }
                     Button(
-                        onClick = { timerViewModel.onCancelClicked() },
-                        enabled = statistic.ticks < statistic.maxTicks,
+                        onClick = { timerViewModel.onResetClicked() },
+                        enabled = monsterHpProgress < monster.maxHp,
                     ) {
                         Text(text = "Reset")
                     }
@@ -135,23 +164,28 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
             }
         }
     }
-
 }
 
 @Composable
-fun StatBar(progress: Float, color: Color) {
+fun StatBar(progress: Float, color: Color, text: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .height(20.dp)
-            .border(width = 1.5.dp, color = Color.White, shape = RoundedCornerShape(10.dp))
+            .border(width = 1.5.dp, color = Color.White, shape = RoundedCornerShape(10.dp)),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(fraction = progress)
                 .fillMaxHeight()
-                .background(color = color, shape = RoundedCornerShape(10.dp))
+                .background(color = color, shape = RoundedCornerShape(10.dp)),
+        )
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = text,
+            color = Color.White,
+            textAlign = TextAlign.Center
         )
     }
 }
