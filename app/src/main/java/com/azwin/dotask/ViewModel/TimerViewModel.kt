@@ -48,6 +48,7 @@ class TimerViewModel : ViewModel() {
         )
         _playerDamage.value = _player.value.damage
         startTimer()
+
     }
 
     //action buat pause
@@ -77,19 +78,13 @@ class TimerViewModel : ViewModel() {
             while (_player.value.stamina < _player.value.MaxStamina) {
                 delay(1.seconds)
                 _player.value = _player.value.copy(
-                    stamina = _player.value.stamina + 1
+                    stamina = _player.value.stamina + 6
                 )
+                if (_player.value.stamina >= _player.value.MaxStamina) {
+                    _player.value = _player.value.copy(stamina = _player.value.MaxStamina)
+                }
             }
         }
-    }
-
-    //fun reset stop
-    fun resetStop() {
-        timerJob?.cancel()
-        _timer.value = _timer.value.copy(
-            isTimerRunning = false
-        )
-
     }
 
 
