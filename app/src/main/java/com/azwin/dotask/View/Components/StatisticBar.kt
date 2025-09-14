@@ -22,8 +22,8 @@ fun StatisticBar(progress: Float, color: Color, text: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .height(20.dp)
-            .border(width = 1.5.dp, color = Color.White, shape = RoundedCornerShape(10.dp)),
+            .height(24.dp)
+            .border(width = 1.5.dp, color = Color.White, shape = RoundedCornerShape(5.dp)),
     ) {
         Box(
             modifier = Modifier

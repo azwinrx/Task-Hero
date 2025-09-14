@@ -25,6 +25,8 @@ class TimerViewModel : ViewModel() {
     private val _monster = mutableStateOf(allMonsters.first())
     val monster: State<MonsterData> = _monster
 
+    val selectedMonster: Int = _monster.value.id
+
     private val _monsterHp = mutableStateOf(_monster.value.maxHp)
     val monsterHp: State<Int> = _monsterHp
 

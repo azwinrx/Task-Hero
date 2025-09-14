@@ -154,8 +154,17 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                             GameButton(
                                 backgroundRes = R.drawable.restbutton,
                                 onClick = { timerViewModel.onRestClicked() },
-                                modifier = Modifier,
+                                modifier = Modifier
+                                    .alpha(1f),
                                 enabled = true
+                            )
+                        }else{
+                            GameButton(
+                                backgroundRes = R.drawable.restbutton,
+                                onClick = { timerViewModel.onRestClicked() },
+                                modifier = Modifier
+                                    .alpha(0f),
+                                enabled = false
                             )
                         }
                     }
@@ -164,8 +173,17 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                             GameButton(
                                 backgroundRes = R.drawable.cancelbutton,
                                 onClick = { timerViewModel.onResetClicked() },
-                                modifier = Modifier,
+                                modifier = Modifier
+                                    .alpha(1f),
                                 enabled = true
+                            )
+                        }else{
+                            GameButton(
+                                backgroundRes = R.drawable.cancelbutton,
+                                onClick = { },
+                                modifier = Modifier
+                                    .alpha(0f),
+                                enabled = false
                             )
                         }
                     }
