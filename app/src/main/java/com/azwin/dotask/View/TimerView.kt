@@ -1,5 +1,4 @@
 package com.azwin.dotask.View
-
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -56,16 +55,12 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
-        Column {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(top = (16.dp))
+                        .padding(top = 32.dp, start = 16.dp, end = 16.dp)
                 ) {
                     StatisticBar(
                         progress = expBarProgress,
@@ -127,9 +122,10 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 24.dp),
+                        .padding(bottom = 48.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
+                    //Attack and pause button
                     Box(
                         modifier = Modifier
                     ) {
@@ -149,8 +145,9 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                             )
                         }
                     }
+                    //Rest Button
                     Box() {
-                        if (player.stamina < player.MaxStamina) {
+                        if (!timer.isTimerRunning && !timer.isRestRunning) {
                             GameButton(
                                 backgroundRes = R.drawable.restbutton,
                                 onClick = { timerViewModel.onRestClicked() },
@@ -158,16 +155,26 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                                     .alpha(1f),
                                 enabled = true
                             )
-                        }else{
+                        }else if(timer.isRestRunning){
+                            GameButton(
+                                backgroundRes = R.drawable.restactive,
+                                onClick = { timerViewModel.onRestCancelCLicked()},
+                                modifier = Modifier
+                                    .alpha(1f),
+                                enabled = true
+                            )
+                        }
+                        else{
                             GameButton(
                                 backgroundRes = R.drawable.restbutton,
-                                onClick = { timerViewModel.onRestClicked() },
+                                onClick = {},
                                 modifier = Modifier
                                     .alpha(0f),
                                 enabled = false
                             )
                         }
                     }
+                    //Cancel Button
                     Box(){
                         if (monsterHp < monster.maxHp){
                             GameButton(
@@ -191,12 +198,11 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
             }
         }
     }
-}
 
 
 
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true, apiLevel = 35)
 @Composable
 fun TimerViewPreview() {
     TimerView()
