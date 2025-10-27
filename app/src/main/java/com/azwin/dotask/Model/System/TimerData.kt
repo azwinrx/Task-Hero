@@ -1,4 +1,4 @@
-package com.azwin.dotask.Model
+package com.azwin.dotask.Model.System
 
 data class TimerData (
     val isTimerRunning: Boolean = false,
