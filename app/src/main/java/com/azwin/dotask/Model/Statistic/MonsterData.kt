@@ -1,4 +1,5 @@
-package com.azwin.dotask.Model
+package com.azwin.dotask.Model.Statistic
+
 import androidx.annotation.DrawableRes
 
 data class MonsterData (

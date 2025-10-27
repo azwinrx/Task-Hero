@@ -1,16 +1,14 @@
 package com.azwin.dotask.ViewModel
 
-// <<< PERUBAHAN 1: Tambahkan import yang dibutuhkan >>>
-// ^^^ Ganti ViewModel dengan AndroidViewModel ^^^
 import android.app.Application
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.azwin.dotask.Data.SettingsManager
-import com.azwin.dotask.Model.MonsterData
-import com.azwin.dotask.Model.PlayerData
-import com.azwin.dotask.Model.TimerData
+import com.azwin.dotask.Model.Statistic.MonsterData
+import com.azwin.dotask.Model.Statistic.PlayerData
+import com.azwin.dotask.Model.System.TimerData
 import com.azwin.dotask.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -18,12 +16,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
-class TimerViewModel(application: Application) : AndroidViewModel(application) {
+open class TimerViewModel(application: Application) : AndroidViewModel(application) {
 
     private val settingsManager = SettingsManager(application)
 
     //Monster Detail
-    private val allMonsters = listOf(
+    val allMonsters = listOf(
         MonsterData(id = 1, name = "Slime Ghost", maxHp = 900,expGain = 50, imageRes = R.drawable.slimeghost),
         MonsterData(id = 2, name = "Baby Lizard", maxHp = 1200, expGain = 100, imageRes = R.drawable.babylizard),
         MonsterData(id = 3, name = "Evil Tree", maxHp = 1500, expGain = 150, imageRes = R.drawable.eviltree),
@@ -31,30 +29,36 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     private val _monster = mutableStateOf(allMonsters.first())
-    val monster: State<MonsterData> = _monster
+    open val monster: State<MonsterData> = _monster
 
     private val _monsterHp = mutableStateOf(_monster.value.maxHp)
-    val monsterHp: State<Int> = _monsterHp
+    open val monsterHp: State<Int> = _monsterHp
 
     //Player Data
     private val _player = mutableStateOf(PlayerData()) // Dimulai dengan default
-    val player: State<PlayerData> = _player
+    open val player: State<PlayerData> = _player
     private val _playerDamage = mutableStateOf(_player.value.damage)
-    val playerDamage: State<Int> = _playerDamage
+    open val playerDamage: State<Int> = _playerDamage
 
     //Timer Detail (Status)
     private val _timer = mutableStateOf(TimerData())
-    val timer: State<TimerData> = _timer
+    open val timer: State<TimerData> = _timer
 
     private var timerJob: Job? = null
 
-    // <<< PERUBAHAN 4: Tambahkan init block untuk memuat data di awal >>>
+    open fun selectMonster(selectedMonster: MonsterData) {
+        timerJob?.cancel() // Hentikan timer jika sedang berjalan
+        _timer.value = _timer.value.copy(isTimerRunning = false, isRestRunning = false) // Reset status timer
+        _monster.value = selectedMonster
+        _monsterHp.value = selectedMonster.maxHp // Reset HP ke max HP monster baru
+    }
+
     init {
         loadPlayerData()
     }
 
     //action buat attack
-    fun onAttackClicked() {
+    open fun onAttackClicked() {
         if (_player.value.stamina <= 0) return // Tambahan: Cek stamina sebelum menyerang
 
         timerJob?.cancel()
@@ -64,7 +68,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     //action buat pause
-    fun onPauseClicked() {
+    open fun onPauseClicked() {
         timerJob?.cancel()
         _timer.value = _timer.value.copy(isTimerRunning = false)
         // Saat pause, ada baiknya simpan progres stamina
@@ -72,14 +76,14 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     //action buat reset
-    fun onResetClicked() {
+    open fun onResetClicked() {
         timerJob?.cancel()
         _timer.value = _timer.value.copy(isTimerRunning = false)
         _monsterHp.value = _monster.value.maxHp
     }
 
     //rest click
-    fun onRestClicked() {
+    open fun onRestClicked() {
         if (_timer.value.isTimerRunning) return // Tambahan: Jangan rest saat menyerang
         timerJob?.cancel()
         _timer.value = _timer.value.copy(isTimerRunning = false, isRestRunning = true)
@@ -90,11 +94,12 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                     stamina = (_player.value.stamina + 6).coerceAtMost(_player.value.MaxStamina)
                 )
             }
+            _timer.value = _timer.value.copy(isRestRunning = false)
             savePlayerData()
         }
     }
 
-    fun onRestCancelCLicked(){
+    open fun onRestCancelCLicked(){
         timerJob?.cancel()
         _timer.value = _timer.value.copy(isRestRunning = false)
     }
