@@ -28,24 +28,25 @@ class SettingsManager(private val context: Context) {
         }
     }
 
-    val playerStatsFlow: Flow<PlayerData> = context.dataStore.data
-        .map { preferences ->
-            val level = preferences[PLAYER_LEVEL] ?: 1
-            val exp = preferences[PLAYER_EXP] ?: 0
-            val stamina = preferences[PLAYER_STAMINA] ?: 1800
+    val playerStatsFlow: Flow<PlayerData> = context.dataStore.data.map { preferences ->
+        val level = preferences[PLAYER_LEVEL] ?: 1
+        val exp = preferences[PLAYER_EXP] ?: 0
+        val stamina = preferences[PLAYER_STAMINA] ?: 1800
 
-            // Hitung ulang stats turunan berdasarkan level
-            val maxExp = 100 * level
-            val maxStamina = 1800
-            val damage = 1 // Konstan tidak berubah (sementara karena blm ada fitur item damage)
+        //Recount starts based on level rn
+        val maxExp = 100 * level
+        val maxStamina = 1800
 
-            PlayerData(
-                level = level,
-                exp = exp,
-                stamina = stamina,
-                maxExp = maxExp,
-                MaxStamina = maxStamina,
-                damage = damage
-            )
-        }
+        //I make this damage to contant(static) for now, i will made adjustment weapone feature soon
+        val damage = 1
+
+        PlayerData(
+            level = level,
+            exp = exp,
+            stamina = stamina,
+            maxExp = maxExp,
+            MaxStamina = maxStamina,
+            damage = damage
+        )
+    }
 }

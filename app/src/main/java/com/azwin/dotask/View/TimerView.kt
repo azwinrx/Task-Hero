@@ -1,8 +1,4 @@
 package com.azwin.dotask.View
-// import baru
-// import baru
-// import baru
-// import baru
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -42,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.azwin.dotask.R
 import com.azwin.dotask.View.Components.GameButton
 import com.azwin.dotask.View.Components.StatisticBar
+import com.azwin.dotask.ViewModel.FakeTimerViewModel
 import com.azwin.dotask.ViewModel.TimerViewModel
 import com.azwin.dotask.ui.theme.jersey25
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
@@ -66,7 +63,7 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
             .fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.backgroundarena),
+            painter = painterResource(id = R.drawable.backgroundarena1),
             contentDescription = "Background",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -265,11 +262,8 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
 }
 
 
-
-
-
 @Preview(showBackground = true, showSystemUi = true, apiLevel = 35)
 @Composable
 fun TimerViewPreview() {
-    TimerView()
+    TimerView(timerViewModel = FakeTimerViewModel())
 }

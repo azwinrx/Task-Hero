@@ -18,14 +18,38 @@ import kotlin.time.Duration.Companion.seconds
 
 open class TimerViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val settingsManager = SettingsManager(application)
+    private val settingsManager by lazy { SettingsManager(application) }
 
     //Monster Detail
     val allMonsters = listOf(
-        MonsterData(id = 1, name = "Slime Ghost", maxHp = 900,expGain = 50, imageRes = R.drawable.slimeghost),
-        MonsterData(id = 2, name = "Baby Lizard", maxHp = 1200, expGain = 100, imageRes = R.drawable.babylizard),
-        MonsterData(id = 3, name = "Evil Tree", maxHp = 1500, expGain = 150, imageRes = R.drawable.eviltree),
-        MonsterData(id = 4, name = "The Unknown", maxHp = 1800, expGain = 200, imageRes = R.drawable.theunknown),
+        MonsterData(
+            id = 1,
+            name = "Slime Ghost",
+            maxHp = 900,
+            expGain = 50,
+            imageRes = R.drawable.slimeghost
+        ),
+        MonsterData(
+            id = 2,
+            name = "Baby Lizard",
+            maxHp = 1200,
+            expGain = 100,
+            imageRes = R.drawable.babylizard
+        ),
+        MonsterData(
+            id = 3,
+            name = "Evil Tree",
+            maxHp = 1500,
+            expGain = 150,
+            imageRes = R.drawable.eviltree
+        ),
+        MonsterData(
+            id = 4,
+            name = "The Unknown",
+            maxHp = 1800,
+            expGain = 200,
+            imageRes = R.drawable.theunknown
+        ),
     )
 
     private val _monster = mutableStateOf(allMonsters.first())
@@ -47,17 +71,21 @@ open class TimerViewModel(application: Application) : AndroidViewModel(applicati
     private var timerJob: Job? = null
 
     open fun selectMonster(selectedMonster: MonsterData) {
-        timerJob?.cancel() // Hentikan timer jika sedang berjalan
-        _timer.value = _timer.value.copy(isTimerRunning = false, isRestRunning = false) // Reset status timer
+        // Stop timer when it was running
+        timerJob?.cancel()
+        _timer.value =
+                // Reset status timer
+                _timer.value.copy(isTimerRunning = false, isRestRunning = false)
         _monster.value = selectedMonster
-        _monsterHp.value = selectedMonster.maxHp // Reset HP ke max HP monster baru
+        // Reset HP ke max HP monster baru
+        _monsterHp.value = selectedMonster.maxHp
     }
 
     init {
         loadPlayerData()
     }
 
-    //action buat attack
+    //Action for attack
     open fun onAttackClicked() {
         if (_player.value.stamina <= 0) return // Tambahan: Cek stamina sebelum menyerang
 
@@ -67,7 +95,7 @@ open class TimerViewModel(application: Application) : AndroidViewModel(applicati
         startTimer()
     }
 
-    //action buat pause
+    //Action for pause
     open fun onPauseClicked() {
         timerJob?.cancel()
         _timer.value = _timer.value.copy(isTimerRunning = false)
@@ -75,7 +103,7 @@ open class TimerViewModel(application: Application) : AndroidViewModel(applicati
         savePlayerData()
     }
 
-    //action buat reset
+    //Action for reset
     open fun onResetClicked() {
         timerJob?.cancel()
         _timer.value = _timer.value.copy(isTimerRunning = false)
@@ -99,12 +127,12 @@ open class TimerViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    open fun onRestCancelCLicked(){
+    open fun onRestCancelCLicked() {
         timerJob?.cancel()
         _timer.value = _timer.value.copy(isRestRunning = false)
     }
 
-    //mulai timer
+    //Start timer
     private fun startTimer() {
         timerJob = viewModelScope.launch {
             while (_monsterHp.value > 0) {
@@ -134,7 +162,7 @@ open class TimerViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    //chek level naik atau ga
+    //checking level up or not
     private fun checkLevelUp() {
         val currentPlayer = _player.value
         if (currentPlayer.exp >= currentPlayer.maxExp) {
@@ -157,8 +185,8 @@ open class TimerViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    //buat load player data
-    private fun loadPlayerData() {
+    //load player data
+    open fun loadPlayerData() {
         viewModelScope.launch {
             _player.value = settingsManager.playerStatsFlow.first()
             // Update juga player damage setelah load
@@ -166,7 +194,8 @@ open class TimerViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    private fun savePlayerData() {
+    // Saving player latest data
+    open fun savePlayerData() {
         viewModelScope.launch {
             settingsManager.savePlayerStats(_player.value)
         }

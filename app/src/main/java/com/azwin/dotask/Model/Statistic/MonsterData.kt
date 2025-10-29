@@ -2,7 +2,7 @@ package com.azwin.dotask.Model.Statistic
 
 import androidx.annotation.DrawableRes
 
-data class MonsterData (
+data class MonsterData(
     val id: Int,
     val name: String,
     val maxHp: Int,
