@@ -1,4 +1,5 @@
 package com.azwin.dotask.View
+
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,6 +19,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,32 +37,63 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.azwin.dotask.Model.Fight.Statistic.MonsterData
+import com.azwin.dotask.Model.Fight.Statistic.PlayerData
+import com.azwin.dotask.Model.Fight.TimerData
 import com.azwin.dotask.R
 import com.azwin.dotask.View.Components.GameButton
 import com.azwin.dotask.View.Components.StatisticBar
-import com.azwin.dotask.ViewModel.FakeTimerViewModel
-import com.azwin.dotask.ViewModel.TimerViewModel
+import com.azwin.dotask.ViewModel.Fight.TimerViewModel
 import com.azwin.dotask.ui.theme.jersey25
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
+// 1. STATEFUL Composable: Bertugas menyediakan data dari ViewModel
 @Composable
 fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
-
-    var isMonsterDropdownExpanded by remember { mutableStateOf(false) }
-
+    // Menggunakan collectAsState untuk mendengarkan StateFlow dari Repository
+    val player by timerViewModel.player.collectAsState()
     val monster by timerViewModel.monster
     val monsterHp by timerViewModel.monsterHp
-    val player by timerViewModel.player
     val timer by timerViewModel.timer
+
+    TimerViewContent(
+        player = player,
+        monster = monster,
+        monsterHp = monsterHp,
+        timer = timer,
+        allMonsters = timerViewModel.allMonsters,
+        onSelectMonster = timerViewModel::selectMonster,
+        onAttackClicked = timerViewModel::onAttackClicked,
+        onPauseClicked = timerViewModel::onPauseClicked,
+        onRestClicked = timerViewModel::onRestClicked,
+        onRestCancelClicked = timerViewModel::onRestCancelCLicked,
+        onResetClicked = timerViewModel::onResetClicked
+    )
+}
+
+// 2. STATELESS Composable: Hanya menampilkan UI
+@Composable
+fun TimerViewContent(
+    player: PlayerData,
+    monster: MonsterData,
+    monsterHp: Int,
+    timer: TimerData,
+    allMonsters: List<MonsterData>,
+    onSelectMonster: (MonsterData) -> Unit,
+    onAttackClicked: () -> Unit,
+    onPauseClicked: () -> Unit,
+    onRestClicked: () -> Unit,
+    onRestCancelClicked: () -> Unit,
+    onResetClicked: () -> Unit
+) {
+    var isMonsterDropdownExpanded by remember { mutableStateOf(false) }
 
     val expBarProgress = player.exp.toFloat() / player.maxExp
     val monsterHpProgress = monsterHp.toFloat() / monster.maxHp
     val playerStaminaProgress = player.stamina.toFloat() / player.MaxStamina
 
-    //UI Layout
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Image(
             painter = painterResource(id = R.drawable.backgroundarena1),
@@ -73,8 +106,7 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
         ) {
             // Player Stats Bars
             Column(
-                modifier = Modifier
-                    .padding(top = 32.dp, start = 16.dp, end = 16.dp)
+                modifier = Modifier.padding(top = 32.dp, start = 16.dp, end = 16.dp)
             ) {
                 StatisticBar(
                     progress = expBarProgress,
@@ -97,20 +129,12 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Box untuk gambar monster (agar tumpang tindih)
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(contentAlignment = Alignment.Center) {
                     Image(
                         modifier = Modifier
                             .clip(RectangleShape)
                             .alpha(0.7f),
-                        painter = rememberDrawablePainter(
-                            drawable = getDrawable(
-                                LocalContext.current,
-                                monster.imageRes
-                            )
-                        ),
+                        painter = rememberDrawablePainter(getDrawable(LocalContext.current, monster.imageRes)),
                         contentDescription = "Monster Image",
                         contentScale = ContentScale.FillWidth,
                     )
@@ -119,38 +143,27 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                             modifier = Modifier
                                 .clip(RectangleShape)
                                 .alpha(0.8f),
-                            painter = rememberDrawablePainter(
-                                drawable = getDrawable(
-                                    LocalContext.current,
-                                    R.drawable.hiteffect
-                                )
-                            ),
+                            painter = rememberDrawablePainter(getDrawable(LocalContext.current, R.drawable.hiteffect)),
                             contentDescription = "Hit Effect",
                             contentScale = ContentScale.FillWidth,
                         )
                     }
                 }
 
-                // Box ini membungkus Jangkar (Anchor) dan DropdownMenu
-                Box(
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    // (Jangkar) Kita ganti Text menjadi Row agar bisa ada Ikon
+                Box(contentAlignment = Alignment.TopCenter) {
                     Row(
                         modifier = Modifier
-                            .clickable { isMonsterDropdownExpanded = true } // Pemicu
+                            .clickable { isMonsterDropdownExpanded = true }
                             .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
                             .padding(horizontal = 16.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Monster name
                         Text(
                             text = monster.name,
                             color = Color.White,
                             fontFamily = jersey25,
                             fontSize = 32.sp
                         )
-                        // Ikon panah
                         Icon(
                             modifier = Modifier.padding(start = 8.dp),
                             imageVector = Icons.Default.ArrowDropDown,
@@ -159,17 +172,15 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                         )
                     }
 
-
-                    // Dropdown Menu (Popup)
                     DropdownMenu(
                         expanded = isMonsterDropdownExpanded,
                         onDismissRequest = { isMonsterDropdownExpanded = false }
                     ) {
-                        timerViewModel.allMonsters.forEach { monsterOption ->
+                        allMonsters.forEach { monsterOption ->
                             DropdownMenuItem(
                                 text = { Text(monsterOption.name) },
                                 onClick = {
-                                    timerViewModel.selectMonster(monsterOption)
+                                    onSelectMonster(monsterOption)
                                     isMonsterDropdownExpanded = false
                                 }
                             )
@@ -177,11 +188,10 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                     }
                 }
 
-                // Monster HP Bar
                 StatisticBar(
                     progress = monsterHpProgress,
                     color = Color.Red,
-                    text = "${monsterHp}/${monster.maxHp}"
+                    text = "$monsterHp/${monster.maxHp}"
                 )
             }
 
@@ -192,68 +202,27 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
                     .padding(bottom = 48.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                //Attack and pause button
                 Box {
                     if (!timer.isTimerRunning) {
-                        GameButton(
-                            backgroundRes = R.drawable.fightbutton,
-                            onClick = { timerViewModel.onAttackClicked() },
-                            modifier = Modifier,
-                            enabled = true
-                        )
+                        GameButton(backgroundRes = R.drawable.fightbutton, onClick = onAttackClicked, modifier = Modifier, enabled = true)
                     } else {
-                        GameButton(
-                            backgroundRes = R.drawable.pausebutton,
-                            onClick = { timerViewModel.onPauseClicked() },
-                            modifier = Modifier,
-                            enabled = true
-                        )
+                        GameButton(backgroundRes = R.drawable.pausebutton, onClick = onPauseClicked, modifier = Modifier, enabled = true)
                     }
                 }
-                //Rest Button
                 Box {
                     if (!timer.isTimerRunning && !timer.isRestRunning && player.stamina < player.MaxStamina) {
-                        GameButton(
-                            backgroundRes = R.drawable.restbutton,
-                            onClick = { timerViewModel.onRestClicked() },
-                            modifier = Modifier.alpha(1f),
-                            enabled = true
-                        )
-
+                        GameButton(backgroundRes = R.drawable.restbutton, onClick = onRestClicked, modifier = Modifier.alpha(1f), enabled = true)
                     } else if (timer.isRestRunning) {
-                        GameButton(
-                            backgroundRes = R.drawable.restactive,
-                            onClick = { timerViewModel.onRestCancelCLicked() },
-                            modifier = Modifier.alpha(1f),
-                            enabled = true
-                        )
-
+                        GameButton(backgroundRes = R.drawable.restactive, onClick = onRestCancelClicked, modifier = Modifier.alpha(1f), enabled = true)
                     } else {
-                        GameButton(
-                            backgroundRes = R.drawable.restbutton,
-                            onClick = {},
-                            modifier = Modifier.alpha(0f),
-                            enabled = false
-                        )
+                        GameButton(backgroundRes = R.drawable.restbutton, onClick = {}, modifier = Modifier.alpha(0f), enabled = false)
                     }
                 }
-
-                //Cancel Button
                 Box {
                     if (monsterHp < monster.maxHp) {
-                        GameButton(
-                            backgroundRes = R.drawable.cancelbutton,
-                            onClick = { timerViewModel.onResetClicked() },
-                            modifier = Modifier.alpha(1f),
-                            enabled = true
-                        )
+                        GameButton(backgroundRes = R.drawable.cancelbutton, onClick = onResetClicked, modifier = Modifier.alpha(1f), enabled = true)
                     } else {
-                        GameButton(
-                            backgroundRes = R.drawable.cancelbutton,
-                            onClick = { },
-                            modifier = Modifier.alpha(0f),
-                            enabled = false
-                        )
+                        GameButton(backgroundRes = R.drawable.cancelbutton, onClick = {}, modifier = Modifier.alpha(0f), enabled = false)
                     }
                 }
             }
@@ -261,9 +230,24 @@ fun TimerView(timerViewModel: TimerViewModel = viewModel()) {
     }
 }
 
-
+// 3. Pratinjau sekarang memanggil versi stateless dengan data palsu
 @Preview(showBackground = true, showSystemUi = true, apiLevel = 35)
 @Composable
 fun TimerViewPreview() {
-    TimerView(timerViewModel = FakeTimerViewModel())
+    val fakeMonster = MonsterData(id = 1, name = "Slime Ghost", maxHp = 900, expGain = 50, imageRes = R.drawable.slimeghost)
+    val fakePlayer = PlayerData(level = 5, exp = 250, maxExp = 1000, stamina = 800, MaxStamina = 1000, damage = 150)
+
+    TimerViewContent(
+        player = fakePlayer,
+        monster = fakeMonster,
+        monsterHp = 800,
+        timer = TimerData(),
+        allMonsters = listOf(fakeMonster, MonsterData(id = 2, name = "Baby Lizard", maxHp = 1200, expGain = 100, imageRes = R.drawable.babylizard)),
+        onSelectMonster = {},
+        onAttackClicked = {},
+        onPauseClicked = {},
+        onRestClicked = {},
+        onRestCancelClicked = {},
+        onResetClicked = {}
+    )
 }

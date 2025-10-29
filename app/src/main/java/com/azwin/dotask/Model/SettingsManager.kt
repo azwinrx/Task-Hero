@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.azwin.dotask.Model.Statistic.PlayerData
+import com.azwin.dotask.Model.Fight.Statistic.PlayerData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

@@ -1,4 +1,4 @@
-package com.azwin.dotask.Model.Statistic
+package com.azwin.dotask.Model.Fight.Statistic
 
 import androidx.annotation.DrawableRes
 

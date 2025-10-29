@@ -1,4 +1,4 @@
-package com.azwin.dotask.Model.Statistic
+package com.azwin.dotask.Model.Fight.Statistic
 
 data class PlayerData(
     val stamina: Int = 1800,
@@ -6,6 +6,6 @@ data class PlayerData(
     val damage: Int = 1,
     val level: Int = 1,
     val exp: Int = 0,
-    val maxExp: Int = 100,
+    val maxExp: Int = 100 * level,
 )
 
