@@ -29,8 +29,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-
 @Preview(
     showBackground = true,
     showSystemUi = true

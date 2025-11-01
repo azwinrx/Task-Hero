@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+    //GSON
+    implementation("com.google.code.gson:gson:2.8.8")
+    implementation(libs.androidx.compose.ui.graphics)
 
     val nav_version = "2.9.5"
     implementation("androidx.navigation:navigation-compose:$nav_version")

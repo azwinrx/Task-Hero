@@ -1,35 +1,55 @@
-package com.azwin.dotask.ViewModel.Quest
+package com.azwin.dotask.ViewModel
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.ViewModel
-import com.azwin.dotask.Model.PlayerRepository
-import com.azwin.dotask.Model.Quest.ToDo
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.azwin.dotask.Data.QuestRepository
+import com.azwin.dotask.Model.Quest.QuestData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class QuestViewModel : ViewModel() {
+class QuestViewModel(application: Application) : AndroidViewModel(application) {
 
-    // State untuk daftar tugas, ini tetap spesifik untuk QuestView
-    private val _toDoList = mutableStateListOf<ToDo>()
-    val toDoList: List<ToDo> = _toDoList
+    private val repository = QuestRepository(application)
 
-    // Ambil state pemain langsung dari sumber tunggal (Single Source of Truth)
-    val player = PlayerRepository.playerState
+    private val _quests = MutableStateFlow<List<QuestData>>(emptyList())
+    val quests: StateFlow<List<QuestData>> = _quests
 
-    private var lastId = 0
-
-    fun addToDo(task: String) {
-        _toDoList.add(ToDo(id = ++lastId, task = task, isCompleted = false))
+    init {
+        viewModelScope.launch {
+            repository.quests.collect { questList ->
+                _quests.value = questList
+            }
+        }
     }
 
-    fun removeToDo(toDo: ToDo) {
-        _toDoList.remove(toDo)
+    private fun saveCurrentQuests() {
+        viewModelScope.launch {
+            repository.saveQuests(_quests.value)
+        }
     }
 
-    // Fungsi ini sekarang didelegasikan ke Repositori
-    fun toggleToDoCompletion(toDo: ToDo) {
-        _toDoList.remove(toDo)
-        // Panggil fungsi terpusat untuk menambah EXP
-        PlayerRepository.addExp(100)
+    fun addQuest(task: String) {
+        val newId = (_quests.value.maxOfOrNull { it.id } ?: 0) + 1
+        val newQuest = QuestData(id = newId, task = task)
+        _quests.value = _quests.value + newQuest
+        saveCurrentQuests()
     }
 
-    // Logika level up sudah tidak ada di sini, karena sudah terpusat di PlayerRepository
+    fun toggleQuestCompleted(questId: Int) {
+        _quests.value = _quests.value.map { quest ->
+            if (quest.id == questId) {
+                quest.copy(isCompleted = !quest.isCompleted)
+            } else {
+                quest
+            }
+        }
+        saveCurrentQuests()
+    }
+
+    fun deleteQuest(questId: Int) {
+        _quests.value = _quests.value.filterNot { it.id == questId }
+        saveCurrentQuests()
+    }
 }
