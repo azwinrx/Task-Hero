@@ -243,7 +243,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🙏 Assets Credits
+## 🙏 Assets Credit
 - Slime Ghost : https://id.pinterest.com/pin/72972456457340602/ or https://i.gifer.com/PcHK.gif
 - Baby Lizard : https://tenor.com/id/view/green-monster-cute-creatures-pixel-monster-cute-monsters-portal-fantasy-game-gif-27138031
 - Evil Tree : https://tenor.com/id/view/pixel-pixelart-pixel-game-cute-monster-mossy-gif-27137951
